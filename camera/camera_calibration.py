@@ -2,8 +2,6 @@ import cv2
 import numpy as np
 import glob
 
-
-
 # 找棋盘格角点
 # 设置寻找亚像素角点的参数，采用的停止准则是最大循环次数30和最大误差容限0.001
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001) # 阈值
