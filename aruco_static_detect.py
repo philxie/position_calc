@@ -23,8 +23,6 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 
-
-
 # 对于每次成功检测到标记，将按从左上，右上，右下和左下的顺序检测标记的四个角点。在Python中，它们存储为Numpy 数组。
 # detectMarkers()函数用于检测和确定标记角点的位置。
 #
