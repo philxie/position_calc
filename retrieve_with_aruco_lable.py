@@ -1,40 +1,32 @@
-# 利用摄像头进行一个实时动态监测aruco标记并且估计姿势，摄像头的内参需要提前标定，如何标定请看我另一篇文章
-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import numpy as np
 import time
 import cv2
 import cv2.aruco as aruco
 
-url = 'rtsp://admin:admin@10.12.97.126:8554/live'
-# mtx = np.array([
-#         [2946.48,       0, 1980.53],
-#         [      0, 2945.41, 1129.25],
-#         [      0,       0,       1],
-#         ])
-# #我的手机拍棋盘的时候图片大小是 4000 x 2250
-# #ip摄像头拍视频的时候设置的是 1920 x 1080，长宽比是一样的，
-# #ip摄像头设置分辨率的时候注意一下
-#
-#
-# dist = np.array( [0.226317, -1.21478, 0.00170689, -0.000334551, 1.9892] )
-
-
-# 相机纠正参数
+# 加载相机纠正参数
+cv_file = cv2.FileStorage("yuyan.yaml", cv2.FILE_STORAGE_READ)
+camera_matrix = cv_file.getNode("camera_matrix").mat()
+dist_matrix = cv_file.getNode("dist_coeff").mat()
+cv_file.release()
 
 # dist=np.array(([[-0.51328742,  0.33232725 , 0.01683581 ,-0.00078608, -0.1159959]]))
 #
 # mtx=np.array([[464.73554153, 0.00000000e+00 ,323.989155],
 #  [  0.,         476.72971528 ,210.92028],
 #  [  0.,           0.,           1.        ]])
-dist = np.array(([[-0.58650416, 0.59103816, -0.00443272, 0.00357844, -0.27203275]]))
-newcameramtx = np.array([[189.076828, 0., 361.20126638]
-                            , [0, 2.01627296e+04, 4.52759577e+02]
-                            , [0, 0, 1]])
-mtx = np.array([[398.12724231, 0., 304.35638757],
-                [0., 345.38259888, 282.49861858],
-                [0., 0., 1.]])
 
-cap = cv2.VideoCapture(url)
+# dist=np.array(([[-0.58650416 , 0.59103816, -0.00443272 , 0.00357844 ,-0.27203275]]))
+# newcameramtx=np.array([[189.076828   ,  0.    ,     361.20126638]
+#  ,[  0 ,2.01627296e+04 ,4.52759577e+02]
+#  ,[0, 0, 1]])
+# mtx=np.array([[398.12724231  , 0.      ,   304.35638757],
+#  [  0.       ,  345.38259888, 282.49861858],
+#  [  0.,           0.,           1.        ]])
+
+
+cap = cv2.VideoCapture(0)
 
 font = cv2.FONT_HERSHEY_SIMPLEX  # font for displaying text (below)
 
@@ -44,8 +36,8 @@ while True:
     h1, w1 = frame.shape[:2]
     # 读取摄像头画面
     # 纠正畸变
-    newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (h1, w1), 0, (h1, w1))
-    dst1 = cv2.undistort(frame, mtx, dist, None, newcameramtx)
+    newcameramtx, roi = cv2.getOptimalNewCameraMatrix(camera_matrix, dist_matrix, (h1, w1), 0, (h1, w1))
+    dst1 = cv2.undistort(frame, camera_matrix, dist_matrix, None, newcameramtx)
     x, y, w1, h1 = roi
     dst1 = dst1[y:y + h1, x:x + w1]
     frame = dst1
@@ -53,7 +45,7 @@ while True:
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_250)
     parameters = aruco.DetectorParameters_create()
-    dst1 = cv2.undistort(frame, mtx, dist, None, newcameramtx)
+    # dst1 = cv2.undistort(frame, mtx, dist, None, newcameramtx)
     '''
     detectMarkers(...)
         detectMarkers(image, dictionary[, corners[, ids[, parameters[, rejectedI
@@ -66,7 +58,7 @@ while True:
     #    如果找不打id
     if ids is not None:
 
-        rvec, tvec, _ = aruco.estimatePoseSingleMarkers(corners, 0.05, mtx, dist)
+        rvec, tvec, _ = aruco.estimatePoseSingleMarkers(corners, 0.05, camera_matrix, dist_matrix)
         # 估计每个标记的姿态并返回值rvet和tvec ---不同
         # from camera coeficcients
         (rvec - tvec).any()  # get rid of that nasty numpy value array error
@@ -75,11 +67,10 @@ while True:
         #        aruco.drawDetectedMarkers(frame, corners) #在标记周围画一个正方形
 
         for i in range(rvec.shape[0]):
-            aruco.drawAxis(frame, mtx, dist, rvec[i, :, :], tvec[i, :, :], 0.03)
-            aruco.drawDetectedMarkers(frame, corners)
+            aruco.drawAxis(frame, camera_matrix, dist_matrix, rvec[i, :, :], tvec[i, :, :], 0.03)
+            aruco.drawDetectedMarkers(frame, corners, ids)
         ###### DRAW ID #####
         cv2.putText(frame, "Id: " + str(ids), (0, 64), font, 1, (0, 255, 0), 2, cv2.LINE_AA)
-
 
     else:
         ##### DRAW "NO IDS" #####

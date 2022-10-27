@@ -4,9 +4,10 @@ import cv2
 import cv2.aruco as aruco
 
 # 读取图片
-frame = cv2.imread('IMG_3739.jpg')
+frame = cv2.imread('camera/img2.jpg')
 # 调整图片大小
-frame = cv2.resize(frame, None, fx=0.2, fy=0.2, interpolation=cv2.INTER_CUBIC)
+# frame = cv2.resize(frame, None, fx=0.2, fy=0.2, interpolation=cv2.INTER_CUBIC)
+frame = cv2.resize(frame, None, fx=1, fy=1, interpolation=cv2.INTER_CUBIC)
 # 灰度话
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 # 设置预定义的字典

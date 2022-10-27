@@ -1,6 +1,7 @@
 import cv2
 
-camera = cv2.VideoCapture(0)
+url = 'rtsp://admin:admin@10.12.97.126:8554/live'
+camera = cv2.VideoCapture(url)
 i = 0
 while 1:
     (grabbed, img) = camera.read()
