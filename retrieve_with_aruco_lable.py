@@ -25,8 +25,8 @@ cv_file.release()
 #  [  0.       ,  345.38259888, 282.49861858],
 #  [  0.,           0.,           1.        ]])
 
-
-cap = cv2.VideoCapture(0)
+url = 'rtsp://admin:admin@10.12.97.126:8554/live'
+cap = cv2.VideoCapture(url)
 
 font = cv2.FONT_HERSHEY_SIMPLEX  # font for displaying text (below)
 

@@ -11,21 +11,21 @@ import matplotlib.patches as patches
 criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)  # 阈值
 
 # 棋盘格模板规格
-w = 9  # 10 - 1
-h = 6  # 7  - 1
+w = 7  # 8 - 1
+h = 5  # 6  - 1
 
 # 世界坐标系中的棋盘格点,例如(0,0,0), (1,0,0), (2,0,0) ....,(8,5,0)，去掉Z坐标，记为二维矩阵
 objp = np.zeros((w * h, 3), np.float32)
 objp[:, :2] = np.mgrid[0:w, 0:h].T.reshape(-1, 2)
 
 # 估计是各自边长，很多代码没有这个
-objp = objp * 18.1  # 18.1 mm
+objp = objp * 94.5  # 18.1 mm
 
 # 储存棋盘格角点的世界坐标和图像坐标对
 objpoints = []  # 在世界坐标系中的三维点
 imgpoints = []  # 在图像平面的二维点
 
-images = glob.glob('./pic/*.jpg')  # 拍摄的十几张棋盘图片所在目录
+images = glob.glob('./*.jpg')  # 拍摄的十几张棋盘图片所在目录
 
 i = 1
 for fname in images:
@@ -71,7 +71,9 @@ print("rvecs旋转（向量）外参:\n", rvecs)  # 旋转向量  # 外参数
 print("tvecs平移（向量）外参:\n", tvecs)  # 平移向量  # 外参数
 newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (u, v), 0, (u, v))
 print('newcameramtx外参', newcameramtx)
-camera = cv2.VideoCapture(0)
+
+url = 'rtsp://admin:admin@10.12.97.126:8554/live'
+camera = cv2.VideoCapture(url)
 
 # dist=np.array(([[-0.3918239532375715, 0.1553689004591761, 0.001069066277469635, 2.175204930902934e-06, -0.02850420360197434]]))
 # # newcameramtx=np.array([[1.85389837e+04 ,0.00000000e+00, 5.48743017e+02]
